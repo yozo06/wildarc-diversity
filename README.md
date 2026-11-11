@@ -4,10 +4,18 @@ Biodiversity indices from species abundances: richness, Shannon, Simpson, Pielou
 one pure function with no dependencies, and every formula is cited. When a measure does not apply to the input, the
 result says so with a reason; it never returns `NaN`, `Infinity` or an invented fallback number.
 
-## Usage
+## Install
 
-Inside this repo the package is linked by npm workspaces and consumed from source, so there is nothing to install or
-build.
+The package is not on npm yet. Install it from this repository, pinned to a tag:
+
+```bash
+npm install github:yozo06/wildarc-diversity#v0.1.0
+```
+
+npm compiles the package while installing it (the `prepare` script builds `dist/`), so the first install is slower
+than one from the registry. What arrives is CommonJS with type declarations and no runtime dependencies.
+
+## Usage
 
 ```ts
 import { diversityProfile } from '@wildarc/diversity';
@@ -108,3 +116,12 @@ J = 1.0000000000000002). Compare with a tolerance rather than `<= 1`.
 
 **Very small shares.** A species whose share of the total is too small to represent (below about 1e-308) still counts
 towards richness but adds nothing to Shannon or the Hill numbers.
+
+## Develop
+
+```bash
+npm install        # also builds dist/ through the prepare script
+npm test           # 28 tests, including worked examples from the sources
+npm run typecheck
+npm run build
+```

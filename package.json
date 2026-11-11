@@ -4,6 +4,26 @@
   "private": true,
   "description": "Biodiversity indices (richness, Shannon, Simpson, Pielou evenness, Hill numbers) from species abundances, with cited sources.",
   "license": "AGPL-3.0-only",
-  "main": "src/index.ts",
-  "types": "src/index.ts"
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "prepare": "npm run build"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3",
+    "vitest": "^3.2.4"
+  }
 }
