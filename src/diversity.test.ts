@@ -112,4 +112,44 @@ describe('diversityProfile', () => {
         expect(v(p.simpsonLambda)).toBeCloseTo(0.5, 10);
         expect(v(p.giniSimpson)).toBeCloseTo(0.5, 10);
     });
+
+    // Worked examples from the sources.
+
+    // Jost (2006), p. 363: a community of eight equally common species has a diversity of eight species and one
+    // of sixteen has a diversity of sixteen, so the second is twice as diverse.
+    it('Jost (2006) p. 363: eight and sixteen equally common species have diversities 8 and 16', () => {
+        const eight = diversityProfile(Array(8).fill(5));
+        const sixteen = diversityProfile(Array(16).fill(5));
+        expect(eight.hill.q0).toBe(8);
+        expect(v(eight.hill.q1)).toBeCloseTo(8, 10);
+        expect(v(eight.hill.q2)).toBeCloseTo(8, 10);
+        expect(sixteen.hill.q0).toBe(16);
+        expect(v(sixteen.hill.q1)).toBeCloseTo(16, 10);
+        expect(v(sixteen.hill.q2)).toBeCloseTo(16, 10);
+    });
+
+    // Jost (2006), p. 367: two bird communities of 50 equally common species each, with none shared, pool to
+    // 100 equally common species. The share of the pooled index held by one community is 0.5 by species
+    // richness, 0.85 by Shannon entropy and 0.99 by the Gini-Simpson index.
+    it('Jost (2006) p. 367: 50 of 100 equally common species give index ratios 0.5, 0.85 and 0.99', () => {
+        const one = diversityProfile(Array(50).fill(1));
+        const pooled = diversityProfile(Array(100).fill(1));
+        // Jost's Gini-Simpson index is 1 − Σpᵢ² (Table 1, p. 364), which is 1 − 1/hill.q2.
+        const jostGiniSimpson = (p: typeof one) => 1 - 1 / v(p.hill.q2)!;
+        expect(one.richness / pooled.richness).toBe(0.5);
+        expect(v(one.shannon)! / v(pooled.shannon)!).toBeCloseTo(0.85, 2);
+        expect(jostGiniSimpson(one) / jostGiniSimpson(pooled)).toBeCloseTo(0.99, 2);
+    });
+
+    // `giniSimpson` is the complement of the unbiased λ, (N/(N−1))(1 − Σpᵢ²), which is Hurlbert's (1971)
+    // probability of interspecific encounter. Jost's Gini-Simpson index is the plug-in form 1 − Σpᵢ².
+    it('giniSimpson is N/(N−1) times the plug-in Gini-Simpson index 1 − 1/hill.q2', () => {
+        const p = diversityProfile([50, 30, 20]);
+        expect(1 - 1 / v(p.hill.q2)!).toBeCloseTo(0.62, 10); // 1 − (0.25 + 0.09 + 0.04)
+        expect(v(p.giniSimpson)).toBeCloseTo((100 / 99) * 0.62, 10);
+        // Two individuals of two species: certain to differ when drawn without replacement, 0.5 with it.
+        const pair = diversityProfile([1, 1]);
+        expect(v(pair.giniSimpson)).toBe(1);
+        expect(1 - 1 / v(pair.hill.q2)!).toBeCloseTo(0.5, 10);
+    });
 });

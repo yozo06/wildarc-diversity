@@ -4,6 +4,8 @@
  * Sources:
  *   Magurran, A. E. (2004). Measuring Biological Diversity. Blackwell Publishing. (ch. 4)
  *   Jost, L. (2006). Entropy and diversity. Oikos 113(2):363–375.
+ *   Hurlbert, S. H. (1971). The nonconcept of species diversity: a critique and alternative parameters.
+ *     Ecology 52(4):577–586.
  */
 
 /** A computed value, or an explicit refusal when the method does not apply. Never NaN, Infinity or -0. */
@@ -28,7 +30,7 @@ export interface DiversityProfile {
     pielouEvenness: Measure;
     /** Simpson's λ = Σ nᵢ(nᵢ−1) / (N(N−1)), the unbiased finite-sample form. */
     simpsonLambda: Measure;
-    /** Gini-Simpson index 1 − λ. */
+    /** 1 − λ with the unbiased λ: the chance that two individuals drawn without replacement differ in species. */
     giniSimpson: Measure;
     /** Hill numbers (effective number of species): q0 = S, q1 = exp(H′), q2 = 1/Σpᵢ². */
     hill: { q0: number; q1: Measure; q2: Measure };
@@ -109,7 +111,9 @@ export function diversityProfile(abundances: Abundances, options: DiversityOptio
         simpsonLambda = computed(lambda);
     }
 
-    // Gini-Simpson index 1 − λ (Jost 2006, Table 1).
+    // 1 − λ: the chance that two individuals drawn without replacement are different species. With the
+    // unbiased λ this is (N/(N−1))(1 − Σpᵢ²), Hurlbert's (1971) probability of interspecific encounter. The
+    // Gini-Simpson index in Jost (2006, Table 1) is the plug-in form 1 − Σpᵢ², which is 1 − 1/hill.q2.
     const giniSimpson = simpsonLambda.value === null ? refused(simpsonLambda.reason) : computed(1 - simpsonLambda.value);
 
     return {

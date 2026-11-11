@@ -49,13 +49,15 @@ gives the same result). A species with abundance 0 is absent: it counts towards 
 | `shannon`        | H′ = −Σ pᵢ ln pᵢ           | Magurran (2004), ch. 4                  |
 | `pielouEvenness` | J = H′ / ln S              | Magurran (2004), ch. 4                  |
 | `simpsonLambda`  | λ = Σ nᵢ(nᵢ−1) / (N(N−1))  | Magurran (2004), ch. 4                  |
-| `giniSimpson`    | 1 − λ                      | Jost (2006), Table 1                    |
+| `giniSimpson`    | 1 − λ                      | Hurlbert (1971), as PIE; see Notes      |
 | `hill.q0`        | S                          | Jost (2006)                             |
 | `hill.q1`        | exp(H′)                    | Jost (2006)                             |
 | `hill.q2`        | 1 / Σ pᵢ²                  | Jost (2006)                             |
 
 - Magurran, A. E. (2004). *Measuring Biological Diversity*. Blackwell Publishing.
 - Jost, L. (2006). Entropy and diversity. *Oikos* 113(2):363–375.
+- Hurlbert, S. H. (1971). The nonconcept of species diversity: a critique and alternative parameters. *Ecology*
+  52(4):577–586.
 
 Every measure except `totalAbundance`, `richness` and `hill.q0` is a `Measure`: either `{ value: number }` or
 `{ value: null, reason: string }`.
@@ -85,6 +87,13 @@ The whole-number check comes first, so `[0.5]` reports the whole-number reason r
 proportions (the "plug-in" form, as if drawing with replacement). `simpsonLambda` is the unbiased finite-sample form,
 which draws without replacement. In the example above `1 / simpsonLambda` is about 2.676 while `hill.q2` is about
 2.632. The two converge as N grows.
+
+**`giniSimpson` is the unbiased form, not the one in Jost (2006).** `giniSimpson` is 1 − λ with the unbiased λ: the
+chance that two individuals drawn without replacement belong to different species. Written out, it is
+(N/(N−1))(1 − Σ pᵢ²), which Hurlbert (1971) called the probability of interspecific encounter (PIE). The
+Gini-Simpson index in Jost (2006), Table 1 is the plug-in form 1 − Σ pᵢ². To get that one, use `1 - 1 / hill.q2`.
+In the example above `giniSimpson` is about 0.626 and the plug-in form is 0.62. The gap is widest for two
+individuals of two species: 1 against 0.5.
 
 **Log bases.** H′ in base *b* is H′ in natural logs divided by ln *b*. The `logBase` option does this for you:
 `diversityProfile([10, 10, 10, 10], { logBase: 2 }).shannon` is 2 bits, where the default gives ln 4 ≈ 1.386 nats.
